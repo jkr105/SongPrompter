@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancionero Prompter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-main);
+            background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+        
+        /* Layout principal */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px 15px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            transition: var(--transition);
+            z-index: 200;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sidebar-compact {
+            width: 70px;
+            transition: var(--transition);
+        }
+        
+        .sidebar-compact .app-title,
+        .sidebar-compact .breadcrumb,
+        .sidebar-compact .nav-btn span,
+        .sidebar-compact .alphabet-btn span {
+            display: none;
+        }
+        
+        .sidebar-compact .logo-container {
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .sidebar-compact .logo {
+            font-size: 1.8rem;
+        }
+        
+        .sidebar-compact .alphabet-nav {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .sidebar-compact .alphabet-btn {
+            margin-bottom: 5px;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-size: 2.2rem;
+            color: var(--secondary);
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--secondary), var(--success));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: var(--transition);
+        }
+        
+        .breadcrumb {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        /* Alphabet Navigation */
+        .alphabet-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        
+        .alphabet-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(52, 152, 219, 0.2);
+            border: none;
+            color: var(--light);
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .alphabet-btn:hover, .alphabet-btn.active {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .txt-btn {
+            background: rgba(46, 204, 113, 0.2);
+        }
+        
+        .txt-btn:hover {
+            background: var(--success);
+        }
+        
+        .search-btn {
+            background: rgba(243, 156, 18, 0.2);
+        }
+        
+        .search-btn:hover {
+            background: var(--warning);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: calc(100vh - 100px);
+            transition: var(--transition);
+        }
+        
+        .view {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .view.active {
+            display: block;
+        }
+        
+        /* Artists View */
+        .artists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .artist-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .artist-card:hover {
+            background: rgba(52, 152, 219, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .artist-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+        
+        .artist-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        /* Songs View */
+        .songs-list {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .song-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .song-item:hover {
+            background: rgba(52, 152, 219, 0.3);
+            transform: translateX(5px);
+        }
+        
+        .song-icon {
+            font-size: 1.5rem;
+            color: var(--success);
+        }
+        
+        .song-title {
+            font-size: 1.2rem;
+            flex-grow: 1;
+        }
+        
+        /* Prompter View */
+        .prompter-container {
+            position: relative;
+            height: 70vh;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: var(--transition);
+        }
+        
+        .prompter-display {
+            flex-grow: 1;
+            padding: 30px;
+            font-size: 2.5rem;
+            line-height: 1.6;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            color: #fff;
+            background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.8) 30%, rgba(0, 0, 0, 0.8) 70%, transparent 100%);
+            cursor: default;
+        }
+        
+        .prompter-text {
+            position: absolute;
+            width: 100%;
+            transition: transform 0.1s linear;
+        }
+        
+        .lyric-line {
+            padding: 8px 0;
+        }
+        
+        /* Floating Controls */
+        .prompter-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            transform: translateY(100%);
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            opacity: 0;
+        }
+        
+        .prompter-controls.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .control-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+            background: var(--accent);
+        }
+        
+        .speed-display {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+        
+        /* Navigation Controls */
+        .nav-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            font-size: 1rem;
+            width: 100%;
+        }
+        
+        .nav-btn:hover {
+            background: var(--secondary);
+        }
+        
+        /* Toggle Sidebar Button */
+        .toggle-sidebar-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.5;
+            transition: var(--transition);
+        }
+        
+        .toggle-sidebar-btn:hover {
+            opacity: 1;
+            background: var(--secondary);
+        }
+        
+        /* Loading Indicator */
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loader .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--secondary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        /* Error Display */
+        .error-container {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .error-title {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .error-details {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+            text-align: left;
+            overflow-x: auto;
+        }
+        
+        .retry-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+        
+        .retry-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+        
+        /* Fullscreen Mode */
+        body.prompter-fullscreen {
+            background: #000;
+            padding: 0;
+        }
+        
+        body.prompter-fullscreen .sidebar {
+            display: none;
+        }
+        
+        body.prompter-fullscreen .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        body.prompter-fullscreen .nav-controls {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        body.prompter-fullscreen .prompter-container {
+            height: 100vh;
+            border-radius: 0;
+            margin-top: 0;
+            box-shadow: none;
+        }
+        
+        body.prompter-fullscreen footer {
+            display: none;
+        }
+        
+        /* Text Input View */
+        .text-input-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .text-input-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+            text-align: center;
+        }
+        
+        .text-input-area {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            font-family: var(--font-main);
+            resize: vertical;
+            margin-bottom: 20px;
+        }
+        
+        .text-input-area:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+        }
+        
+        .text-input-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: block;
+            margin: 0 auto;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .text-input-btn:hover {
+            background: #27ae60;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Search View Styles */
+        .search-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            border: 2px solid var(--secondary);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3);
+        }
+        
+        .search-results {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .search-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .search-item:hover {
+            background: rgba(52, 152, 219, 0.3);
+            transform: translateX(5px);
+        }
+        
+        .search-item .song-icon {
+            font-size: 1.5rem;
+            color: var(--success);
+        }
+        
+        .search-item .song-details {
+            flex-grow: 1;
+        }
+        
+        .search-item .song-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .search-item .artist-name {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .search-info {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            opacity: 0.7;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 300px;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .sidebar-compact {
+                width: 100%;
+            }
+            
+            .sidebar-compact .app-title,
+            .sidebar-compact .breadcrumb,
+            .sidebar-compact .nav-btn span,
+            .sidebar-compact .alphabet-btn span {
+                display: block;
+            }
+            
+            .sidebar-compact .logo-container {
+                flex-direction: row;
+            }
+            
+            .sidebar-compact .alphabet-nav {
+                flex-direction: row;
+            }
+            
+            .toggle-sidebar-btn {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .alphabet-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .app-title {
+                font-size: 1.3rem;
+            }
+            
+            .artist-card {
+                padding: 15px;
+            }
+            
+            .prompter-display {
+                font-size: 2rem;
+            }
+            
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .text-input-container {
+                padding: 15px;
+            }
+            
+            .text-input-area {
+                min-height: 250px;
+            }
+            
+            .search-container {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .artists-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .alphabet-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+            
+            .prompter-display {
+                font-size: 1.5rem;
+                padding: 15px;
+            }
+            
+            .prompter-controls {
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .control-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+            
+            .speed-display {
+                padding: 5px 10px;
+                font-size: 1rem;
+            }
+            
+            .text-input-area {
+                min-height: 200px;
+                font-size: 1rem;
+            }
+            
+            .search-item {
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .search-item .song-title {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-container">
+                <i class="fas fa-music logo"></i>
+                <h1 class="app-title">Cancionero Prompter</h1>
+            </div>
+            
+            <div class="breadcrumb" id="breadcrumb">Inicio > Seleccione una letra</div>
+            
+            <!-- Alphabet Navigation -->
+            <div class="alphabet-nav" id="alphabetNav">
+                <!-- Letters will be populated by JavaScript -->
+            </div>
+            
+            <!-- Navigation Controls -->
+            <div class="nav-controls">
+                <button class="nav-btn" id="backToArtistsBtn">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Volver a artistas</span>
+                </button>
+                <button class="nav-btn" id="backToLettersBtn">
+                    <i class="fas fa-home"></i>
+                    <span>Volver al inicio</span>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Toggle Sidebar Button -->
+        <button class="toggle-sidebar-btn" id="toggleSidebarBtn" title="Alternar menú lateral">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                <!-- Loading Indicator -->
+                <div class="loader" id="loader">
+                    <div class="spinner"></div>
+                    <p>Cargando contenido...</p>
+                </div>
+                
+                <!-- Artists View -->
+                <div class="view" id="artistsView">
+                    <h2><i class="fas fa-users"></i> Artistas</h2>
+                    <div class="artists-grid" id="artistsGrid">
+                        <!-- Artists will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Songs View -->
+                <div class="view" id="songsView">
+                    <h2><i class="fas fa-list"></i> Canciones de <span id="artistName"></span></h2>
+                    <div class="songs-list" id="songsList">
+                        <!-- Songs will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Prompter View -->
+                <div class="view" id="prompterView">
+                    <h2><i class="fas fa-scroll"></i> Prompter: <span id="songTitle"></span></h2>
+                    <div class="prompter-container">
+                        <div class="prompter-display" id="prompterDisplay">
+                            <div class="prompter-text" id="prompterText">
+                                <!-- Lyrics will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Text Input View -->
+                <div class="view" id="textInputView">
+                    <h2><i class="fas fa-paste"></i> Pegar Texto Personalizado</h2>
+                    <div class="text-input-container">
+                        <div class="text-input-title">Pegue aquí el texto que desea usar en el prompter</div>
+                        <textarea class="text-input-area" id="customTextArea" placeholder="Pegue su texto aquí..."></textarea>
+                        <button class="text-input-btn" id="useTextBtn">
+                            <i class="fas fa-play-circle"></i> Usar este texto en el Prompter
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Search View -->
+                <div class="view" id="searchView">
+                    <h2><i class="fas fa-search"></i> Buscar Canciones</h2>
+                    <div class="search-container">
+                        <input type="text" id="searchInput" 
+                               class="search-input" 
+                               placeholder="Escribe el nombre de la canción o artista...">
+                        <div class="search-results" id="searchResults">
+                            <div class="no-results">Escribe en el cuadro de búsqueda para encontrar canciones.</div>
+                        </div>
+                        <p class="search-info">Presiona Ctrl+F para abrir rápidamente el buscador desde cualquier vista</p>
+                    </div>
+                </div>
+                
+                <!-- Floating Controls (fixed at bottom) -->
+                <div class="prompter-controls" id="prompterControls">
+                    <button class="control-btn" id="playBtn">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="control-btn" id="speedUpBtn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="speed-display">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span id="speedValue">1.0x</span>
+                    </div>
+                    <button class="control-btn" id="speedDownBtn">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="control-btn" id="backBtn">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                </div>
+                
+                <!-- Error Display -->
+                <div class="view" id="errorView">
+                    <div class="error-container">
+                        <h2 class="error-title"><i class="fas fa-exclamation-triangle"></i> Error al cargar la canción</h2>
+                        <p>No se pudo cargar la canción solicitada. Por favor, verifique que el archivo existe y tiene el formato correcto.</p>
+                        
+                        <div class="error-details">
+                            <p><strong>Artista:</strong> <span id="errorArtist"></span></p>
+                            <p><strong>Canción:</strong> <span id="errorSong"></span></p>
+                            <p><strong>Ruta intentada:</strong> <span id="errorPath"></span></p>
+                            <p><strong>Mensaje de error:</strong> <span id="errorMessage"></span></p>
+                        </div>
+                        
+                        <button class="retry-btn" id="retryBtn">
+                            <i class="fas fa-redo"></i> Reintentar carga
+                        </button>
+                        
+                        <button class="nav-btn" id="backFromErrorBtn">
+                            <i class="fas fa-arrow-left"></i> Volver a la lista de canciones
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+    <footer>
+        <p>Sistema de Prompter: Cancionero  | Desarrollado con ♥ para lectores y músicos</p>
+        <p><small>MMXXV | Versión 1.1 </small></p>
+        <p>Licencia Creative Commons BY-SA</p>
+    </footer>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const alphabetNav = document.getElementById('alphabetNav');
+            const artistsGrid = document.getElementById('artistsGrid');
+            const songsList = document.getElementById('songsList');
+            const prompterText = document.getElementById('prompterText');
+            const prompterDisplay = document.getElementById('prompterDisplay');
+            const prompterControls = document.getElementById('prompterControls');
+            const breadcrumb = document.getElementById('breadcrumb');
+            const artistNameEl = document.getElementById('artistName');
+            const songTitleEl = document.getElementById('songTitle');
+            const speedValue = document.getElementById('speedValue');
+            const loader = document.getElementById('loader');
+            const errorView = document.getElementById('errorView');
+            const errorArtist = document.getElementById('errorArtist');
+            const errorSong = document.getElementById('errorSong');
+            const errorPath = document.getElementById('errorPath');
+            const errorMessage = document.getElementById('errorMessage');
+            const retryBtn = document.getElementById('retryBtn');
+            const backFromErrorBtn = document.getElementById('backFromErrorBtn');
+            const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+            const customTextArea = document.getElementById('customTextArea');
+            const useTextBtn = document.getElementById('useTextBtn');
+            const textInputView = document.getElementById('textInputView');
+            const searchView = document.getElementById('searchView');
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const sidebar = document.getElementById('sidebar');
+            
+            // Views
+            const artistsView = document.getElementById('artistsView');
+            const songsView = document.getElementById('songsView');
+            const prompterView = document.getElementById('prompterView');
+            
+            // Buttons
+            const playBtn = document.getElementById('playBtn');
+            const speedUpBtn = document.getElementById('speedUpBtn');
+            const speedDownBtn = document.getElementById('speedDownBtn');
+            const backBtn = document.getElementById('backBtn');
+            const backToArtistsBtn = document.getElementById('backToArtistsBtn');
+            const backToLettersBtn = document.getElementById('backToLettersBtn');
+            
+            // App State
+            const appState = {
+                currentLetter: null,
+                currentArtist: null,
+                currentSong: null,
+                isPlaying: false,
+                scrollSpeed: 1.0,
+                scrollPosition: 0,
+                scrollInterval: null,
+                songIndex: null,
+                songCache: {},
+                lastError: null,
+                sidebarCompact: false,
+                controlsTimeout: null,
+                controlsVisible: false,
+                searchIndex: [],
+                searchDebounce: null
+            };
+            
+            // Initialize the app
+            async function initApp() {
+                showLoader();
+                try {
+                    // Load the song index from JSON
+                    const response = await fetch('canciones/_index.json');
+                    if (!response.ok) throw new Error('No se pudo cargar el índice de canciones');
+                    
+                    appState.songIndex = await response.json();
+                    generateAlphabetNavigation();
+                    buildSearchIndex(); // Construir el índice de búsqueda
+                    showView(artistsView);
+                    updateBreadcrumb('Inicio');
+                    hideLoader();
+                } catch (error) {
+                    console.error('Error loading song index:', error);
+                    showError('Error al cargar el índice', 
+                              'No se pudo cargar el archivo canciones/_index.json', 
+                              error.message);
+                    hideLoader();
+                }
+            }
+            
+            // Construir índice de búsqueda optimizado
+            function buildSearchIndex() {
+                appState.searchIndex = [];
+                
+                Object.keys(appState.songIndex).forEach(letter => {
+                    Object.keys(appState.songIndex[letter]).forEach(artist => {
+                        appState.songIndex[letter][artist].forEach(song => {
+                            appState.searchIndex.push({
+                                song,
+                                artist,
+                                letter,
+                                // Normalizamos para búsqueda insensible a acentos y mayúsculas
+                                normalizedSong: song.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(),
+                                normalizedArtist: artist.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+                            });
+                        });
+                    });
+                });
+            }
+            
+            // Realizar búsqueda con debounce para mejorar rendimiento
+            function performSearch(query) {
+                clearTimeout(appState.searchDebounce);
+                
+                appState.searchDebounce = setTimeout(() => {
+                    const results = searchSongs(query);
+                    renderSearchResults(results);
+                }, 300);
+            }
+            
+            // Algoritmo de búsqueda
+            function searchSongs(query) {
+                const normalizedQuery = query.normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase();
+                
+                if (!normalizedQuery) return [];
+                
+                return appState.searchIndex.filter(item => {
+                    return item.normalizedSong.includes(normalizedQuery) || 
+                           item.normalizedArtist.includes(normalizedQuery);
+                }).sort((a, b) => {
+                    // Ordenar por relevancia (coincidencia exacta primero)
+                    const aExact = a.normalizedSong === normalizedQuery;
+                    const bExact = b.normalizedSong === normalizedQuery;
+                    
+                    if (aExact && !bExact) return -1;
+                    if (!aExact && bExact) return 1;
+                    
+                    // Ordenar por posición de coincidencia
+                    return a.normalizedSong.indexOf(normalizedQuery) - 
+                           b.normalizedSong.indexOf(normalizedQuery);
+                });
+            }
+            
+            // Mostrar resultados de búsqueda
+            function renderSearchResults(results) {
+                if (results.length === 0) {
+                    searchResults.innerHTML = '<div class="no-results">No se encontraron canciones. Intenta con otro término.</div>';
+                    return;
+                }
+                
+                searchResults.innerHTML = '';
+                
+                results.forEach(item => {
+                    const resultElement = document.createElement('div');
+                    resultElement.className = 'search-item';
+                    resultElement.innerHTML = `
+                        <div class="song-icon">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div class="song-details">
+                            <div class="song-title">${item.song}</div>
+                            <div class="artist-name">${item.artist}</div>
+                        </div>
+                    `;
+                    
+                    resultElement.addEventListener('click', () => {
+                        // Establecer el estado actual para que coincida con la canción seleccionada
+                        appState.currentLetter = item.letter;
+                        appState.currentArtist = item.artist;
+                        selectSong(item.song);
+                    });
+                    
+                    searchResults.appendChild(resultElement);
+                });
+            }
+            
+            // Show/hide loader
+            function showLoader() {
+                loader.style.display = 'block';
+            }
+            
+            function hideLoader() {
+                loader.style.display = 'none';
+            }
+            
+            // Generate alphabet navigation
+            function generateAlphabetNavigation() {
+                alphabetNav.innerHTML = '';
+                const letters = Object.keys(appState.songIndex).sort();
+                
+                letters.forEach(letter => {
+                    const button = document.createElement('button');
+                    button.className = 'alphabet-btn';
+                    button.innerHTML = `<span>${letter}</span>`;
+                    button.addEventListener('click', () => {
+                        selectLetter(letter);
+                    });
+                    alphabetNav.appendChild(button);
+                });
+                
+                // Add TXT button at the end
+                const txtButton = document.createElement('button');
+                txtButton.className = 'alphabet-btn txt-btn';
+                txtButton.title = 'Pegar texto personalizado';
+                txtButton.innerHTML = '<i class="fas fa-font"></i>';
+                //<span>_</span>';
+                txtButton.addEventListener('click', () => {
+                    showView(textInputView);
+                    updateBreadcrumb('Texto personalizado');
+                });
+                alphabetNav.appendChild(txtButton);
+                
+                // Add Search button
+                const searchButton = document.createElement('button');
+                searchButton.className = 'alphabet-btn search-btn';
+                searchButton.title = 'Buscar canciones';
+                searchButton.innerHTML = '<i class="fas fa-search"></i>';
+                //<span>Buscar</span>';
+                searchButton.addEventListener('click', () => {
+                    showView(searchView);
+                    updateBreadcrumb('Buscador de canciones');
+                    searchInput.value = '';
+                    searchResults.innerHTML = '<div class="no-results">Escribe en el cuadro de búsqueda para encontrar canciones.</div>';
+                    setTimeout(() => searchInput.focus(), 100);
+                });
+                alphabetNav.appendChild(searchButton);
+            }
+            
+            // Select a letter
+            function selectLetter(letter) {
+                appState.currentLetter = letter;
+                updateBreadcrumb(`Letra ${letter}`);
+                renderArtists();
+                showView(artistsView);
+                
+                // Highlight selected letter
+                document.querySelectorAll('.alphabet-btn').forEach(btn => {
+                    if (btn.querySelector('span')) {
+                        btn.classList.toggle('active', btn.querySelector('span').textContent === letter);
+                    }
+                });
+            }
+            
+            // Render artists for current letter
+            function renderArtists() {
+                artistsGrid.innerHTML = '';
+                const artists = appState.songIndex[appState.currentLetter];
+                
+                for (const artist in artists) {
+                    const artistCard = document.createElement('div');
+                    artistCard.className = 'artist-card';
+                    artistCard.innerHTML = `
+                        <div class="artist-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="artist-name">${artist}</div>
+                    `;
+                    artistCard.addEventListener('click', () => {
+                        selectArtist(artist);
+                    });
+                    artistsGrid.appendChild(artistCard);
+                }
+            }
+            
+            // Select an artist
+            function selectArtist(artist) {
+                appState.currentArtist = artist;
+                updateBreadcrumb(`Letra ${appState.currentLetter} > ${artist}`);
+                renderSongs();
+                showView(songsView);
+                artistNameEl.textContent = artist;
+            }
+            
+            // Render songs for current artist
+            function renderSongs() {
+                songsList.innerHTML = '';
+                const songs = appState.songIndex[appState.currentLetter][appState.currentArtist];
+                
+                songs.forEach(song => {
+                    const songItem = document.createElement('div');
+                    songItem.className = 'song-item';
+                    songItem.innerHTML = `
+                        <div class="song-icon">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div class="song-title">${song}</div>
+                    `;
+                    songItem.addEventListener('click', () => {
+                        selectSong(song);
+                    });
+                    songsList.appendChild(songItem);
+                });
+            }
+            
+            // Select a song
+            async function selectSong(song) {
+                appState.currentSong = song;
+                updateBreadcrumb(`Letra ${appState.currentLetter} > ${appState.currentArtist} > ${song}`);
+                showLoader();
+                
+                try {
+                    // Check cache first
+                    const cacheKey = `${appState.currentLetter}/${appState.currentArtist}/${song}`;
+                    
+                    if (appState.songCache[cacheKey]) {
+                        prompterText.innerHTML = appState.songCache[cacheKey];
+                        showView(prompterView);
+                        songTitleEl.textContent = song;
+                        enterPrompterMode();
+                    } else {
+                        await loadSongContent(song);
+                        showView(prompterView);
+                        songTitleEl.textContent = song;
+                        enterPrompterMode();
+                    }
+                } catch (error) {
+                    console.error('Error loading song:', error);
+                    showError(appState.currentArtist, song, appState.lastError.path, error.message);
+                } finally {
+                    hideLoader();
+                }
+            }
+            
+            // Load song content from file
+            async function loadSongContent(song) {
+                try {
+                    // Normalize paths to handle special characters
+                    const normalizePath = (str) => {
+                        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    };
+                    
+                    // Try different approaches to handle special characters
+                    const pathAttempts = [
+                        // 1. Original path with special characters
+                        `canciones/${appState.currentLetter}/${appState.currentArtist}/${song}.txt`,
+                        
+                        // 2. Path with normalized special characters
+                        `canciones/${normalizePath(appState.currentLetter)}/${normalizePath(appState.currentArtist)}/${normalizePath(song)}.txt`,
+                        
+                        // 3. Path with URI encoding
+                        `canciones/${encodeURIComponent(appState.currentLetter)}/${encodeURIComponent(appState.currentArtist)}/${encodeURIComponent(song)}.txt`,
+                        
+                        // 4. Path with spaces replaced by underscores
+                        `canciones/${appState.currentLetter.replace(/ /g, '_')}/${appState.currentArtist.replace(/ /g, '_')}/${song.replace(/ /g, '_')}.txt`,
+                        
+                        // 5. Path with special characters removed
+                        `canciones/${appState.currentLetter.replace(/[^\w\s]/gi, '')}/${appState.currentArtist.replace(/[^\w\s]/gi, '')}/${song.replace(/[^\w\s]/gi, '')}.txt`
+                    ];
+                    
+                    let lyrics = null;
+                    let successfulPath = null;
+                    
+                    // Try each path until one works
+                    for (const path of pathAttempts) {
+                        appState.lastError = { path };
+                        
+                        try {
+                            const response = await fetch(path);
+                            if (!response.ok) continue;
+                            
+                            lyrics = await response.text();
+                            successfulPath = path;
+                            break;
+                        } catch (e) {
+                            // Try next path
+                        }
+                    }
+                    
+                    if (!lyrics) {
+                        throw new Error('No se encontró el archivo con ninguna de las rutas probadas');
+                    }
+                    
+                    // Format lyrics with proper line breaks
+                    const formattedLyrics = lyrics.split('\n').map(line => {
+                        return line ? `<div class="lyric-line">${line}</div>` : '<div class="lyric-line"><br></div>';
+                    }).join('');
+                    
+                    prompterText.innerHTML = formattedLyrics;
+                    
+                    // Cache the formatted lyrics
+                    const cacheKey = `${appState.currentLetter}/${appState.currentArtist}/${song}`;
+                    appState.songCache[cacheKey] = formattedLyrics;
+                    
+                    // Reset scroll position
+                    appState.scrollPosition = 0;
+                    prompterText.style.transform = `translateY(${appState.scrollPosition}px)`;
+                    return true;
+                } catch (error) {
+                    console.error('Error loading song:', error);
+                    throw error;
+                }
+            }
+            
+            // Show error view
+            function showError(artist, song, path, message) {
+                errorArtist.textContent = artist;
+                errorSong.textContent = song;
+                errorPath.textContent = path;
+                errorMessage.textContent = message;
+                showView(errorView);
+            }
+            
+            // Show a specific view
+            function showView(view) {
+                artistsView.classList.remove('active');
+                songsView.classList.remove('active');
+                prompterView.classList.remove('active');
+                errorView.classList.remove('active');
+                textInputView.classList.remove('active');
+                searchView.classList.remove('active');
+                view.classList.add('active');
+                
+                // Manejar sidebar
+                if (view === prompterView) {
+                    // En prompter: compactar sidebar
+                    sidebar.classList.add('sidebar-compact');
+                    toggleSidebarBtn.style.display = 'flex';
+                    
+                    // Mostrar controles
+                    showControls();
+                    resetControlsTimer();
+                } else {
+                    // En otras vistas: sidebar completo
+                    sidebar.classList.remove('sidebar-compact');
+                    toggleSidebarBtn.style.display = 'none';
+                    prompterControls.classList.remove('visible');
+                }
+            }
+            
+            // Enter prompter mode (fullscreen)
+            function enterPrompterMode() {
+                document.body.classList.add('prompter-fullscreen');
+                sidebar.classList.add('sidebar-compact');
+                toggleSidebarBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                toggleSidebarBtn.style.display = 'flex';
+            }
+            
+            // Toggle sidebar compact mode
+            function toggleSidebar() {
+                appState.sidebarCompact = !appState.sidebarCompact;
+                
+                if (appState.sidebarCompact) {
+                    sidebar.classList.add('sidebar-compact');
+                    toggleSidebarBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                } else {
+                    sidebar.classList.remove('sidebar-compact');
+                    toggleSidebarBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                }
+                
+                resetControlsTimer();
+            }
+            
+            // Update breadcrumb
+            function updateBreadcrumb(text) {
+                breadcrumb.textContent = text;
+            }
+            
+            // Toggle play/pause
+            function togglePlay() {
+                appState.isPlaying = !appState.isPlaying;
+                
+                if (appState.isPlaying) {
+                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    startScrolling();
+                } else {
+                    playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    stopScrolling();
+                }
+                
+                resetControlsTimer();
+            }
+            
+            // Start scrolling
+            function startScrolling() {
+                if (appState.scrollInterval) clearInterval(appState.scrollInterval);
+                
+                appState.scrollInterval = setInterval(() => {
+                    appState.scrollPosition -= appState.scrollSpeed;
+                    prompterText.style.transform = `translateY(${appState.scrollPosition}px)`;
+                    
+                    // Stop if reached the end
+                    const containerHeight = prompterDisplay.clientHeight;
+                    const textHeight = prompterText.clientHeight;
+                    
+                    if (Math.abs(appState.scrollPosition) > textHeight + containerHeight) {
+                        togglePlay();
+                    }
+                }, 16); // ~60fps
+            }
+            
+            // Stop scrolling
+            function stopScrolling() {
+                if (appState.scrollInterval) {
+                    clearInterval(appState.scrollInterval);
+                    appState.scrollInterval = null;
+                }
+            }
+            
+            // Increase speed
+            function increaseSpeed() {
+                if (appState.scrollSpeed < 5.0) {
+                    appState.scrollSpeed += 0.2;
+                    updateSpeedDisplay();
+                }
+                resetControlsTimer();
+            }
+            
+            // Decrease speed
+            function decreaseSpeed() {
+                if (appState.scrollSpeed > 0.4) {
+                    appState.scrollSpeed -= 0.2;
+                    updateSpeedDisplay();
+                }
+                resetControlsTimer();
+            }
+            
+            // Update speed display
+            function updateSpeedDisplay() {
+                speedValue.textContent = appState.scrollSpeed.toFixed(1) + 'x';
+            }
+            
+            // Show controls
+            function showControls() {
+                clearTimeout(appState.controlsTimeout);
+                prompterControls.classList.add('visible');
+                appState.controlsVisible = true;
+                resetControlsTimer();
+            }
+            
+            // Hide controls
+            function hideControls() {
+                prompterControls.classList.remove('visible');
+                appState.controlsVisible = false;
+            }
+            
+            // Reset controls timer
+            function resetControlsTimer() {
+                clearTimeout(appState.controlsTimeout);
+                appState.controlsTimeout = setTimeout(hideControls, 3000);
+            }
+            
+            // Load custom text into prompter
+            function loadCustomText() {
+                const text = customTextArea.value.trim();
+                
+                if (text) {
+                    prompterText.innerHTML = text.split('\n').map(line => {
+                        return line ? `<div class="lyric-line">${line}</div>` : '<div class="lyric-line"><br></div>';
+                    }).join('');
+                    
+                    // Reset scroll position
+                    appState.scrollPosition = 0;
+                    prompterText.style.transform = `translateY(${appState.scrollPosition}px)`;
+                    
+                    // Update UI
+                    songTitleEl.textContent = "Texto Personalizado";
+                    showView(prompterView);
+                    enterPrompterMode();
+                } else {
+                    alert("Por favor, pegue algún texto en el área designada.");
+                }
+            }
+            
+            // Event Listeners
+            playBtn.addEventListener('click', togglePlay);
+            speedUpBtn.addEventListener('click', increaseSpeed);
+            speedDownBtn.addEventListener('click', decreaseSpeed);
+            backBtn.addEventListener('click', () => {
+                document.body.classList.remove('prompter-fullscreen');
+                showView(songsView);
+            });
+            backToArtistsBtn.addEventListener('click', () => {
+                document.body.classList.remove('prompter-fullscreen');
+                showView(artistsView);
+            });
+            backToLettersBtn.addEventListener('click', () => {
+                document.body.classList.remove('prompter-fullscreen');
+                showView(artistsView);
+                updateBreadcrumb('Inicio');
+            });
+            
+            retryBtn.addEventListener('click', () => {
+                if (appState.currentSong) {
+                    selectSong(appState.currentSong);
+                }
+            });
+            
+            backFromErrorBtn.addEventListener('click', () => {
+                showView(songsView);
+            });
+            
+            toggleSidebarBtn.addEventListener('click', toggleSidebar);
+            
+            useTextBtn.addEventListener('click', loadCustomText);
+            
+            // Evento para búsqueda en tiempo real
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                
+                if (query.length === 0) {
+                    searchResults.innerHTML = '<div class="no-results">Escribe en el cuadro de búsqueda para encontrar canciones.</div>';
+                    return;
+                }
+                
+                performSearch(query);
+            });
+            
+            // Mouse movement detection for controls
+            prompterDisplay.addEventListener('mousemove', (e) => {
+                // Mostrar controles al mover el ratón en el área del prompter
+                if (!appState.controlsVisible) {
+                    showControls();
+                } else {
+                    resetControlsTimer();
+                }
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Space: play/pause
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    togglePlay();
+                } 
+                // Up/Right: increase speed
+                else if (e.code === 'ArrowUp' || e.code === 'ArrowRight') {
+                    e.preventDefault();
+                    increaseSpeed();
+                } 
+                // Down/Left: decrease speed
+                else if (e.code === 'ArrowDown' || e.code === 'ArrowLeft') {
+                    e.preventDefault();
+                    decreaseSpeed();
+                } 
+                // Escape: go back
+                else if (e.code === 'Escape') {
+                    if (prompterView.classList.contains('active')) {
+                        document.body.classList.remove('prompter-fullscreen');
+                        showView(songsView);
+                    } else if (songsView.classList.contains('active')) {
+                        showView(artistsView);
+                    } else if (errorView.classList.contains('active')) {
+                        showView(songsView);
+                    } else if (textInputView.classList.contains('active')) {
+                        showView(artistsView);
+                    } else if (searchView.classList.contains('active')) {
+                        showView(artistsView);
+                    }
+                }
+                // Ctrl+F/Command+F para buscar
+                else if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                    e.preventDefault();
+                    showView(searchView);
+                    searchInput.focus();
+                }
+                // T para alternar el menú lateral
+                else if (e.key === 't' || e.key === 'T') {
+                    e.preventDefault();
+                    toggleSidebar();
+                }
+            });
+            
+            // Initialize the app
+            initApp();
+        });
+    </script>
+</body>
+</html>
