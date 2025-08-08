@@ -999,7 +999,7 @@
                 showLoader();
                 try {
                     // Load the song index from JSON
-                    const response = await fetch('canciones/_index.json');
+                    const response = await fetch('canciones/index.json');
                     if (!response.ok) throw new Error('No se pudo cargar el índice de canciones');
                     
                     appState.songIndex = await response.json();

@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const songsDir = './canciones'; // Carpeta raíz de canciones
-const outputFilePath = './index.json';
+const outputFilePath = './canciones/index.json';
 
 const generateIndex = () => {
   const index = {};
