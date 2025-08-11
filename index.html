@@ -16,6 +16,26 @@
             --warning: #f39c12;
             --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             --transition: all 0.3s ease;
+            
+            /* Variables para modo claro/oscuro */
+            --bg-primary: #2c3e50;
+            --bg-secondary: #1a2a3a;
+            --text-primary: #ecf0f1;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --text-secondary: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Modo claro */
+        [data-theme="light"] {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: #e4e7eb;
+            --text-primary: #2c3e50;
+            --card-bg: rgba(0, 0, 0, 0.05);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --text-secondary: rgba(0, 0, 0, 0.7);
         }
         
         * {
@@ -26,8 +46,8 @@
         
         body {
             font-family: var(--font-main);
-            background: linear-gradient(135deg, #1a2a3a, #2c3e50);
-            color: var(--light);
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+            color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
             line-height: 1.6;
@@ -45,14 +65,19 @@
             width: 280px;
             background: rgba(0, 0, 0, 0.85);
             padding: 20px 15px;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: 1px solid var(--border-color);
             overflow-y: auto;
             position: sticky;
             top: 0;
             height: 100vh;
             transition: var(--transition);
             z-index: 200;
-            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 5px 0 15px var(--shadow-color);
+        }
+        
+        [data-theme="light"] .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
         }
         
         .sidebar-compact {
@@ -91,7 +116,7 @@
             gap: 15px;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border-color);
         }
         
         .logo {
@@ -119,6 +144,11 @@
             background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
             text-align: center;
+            color: var(--text-primary);
+        }
+        
+        [data-theme="light"] .breadcrumb {
+            background: rgba(0, 0, 0, 0.05);
         }
         
         /* Alphabet Navigation */
@@ -136,7 +166,7 @@
             border-radius: 50%;
             background: rgba(52, 152, 219, 0.2);
             border: none;
-            color: var(--light);
+            color: var(--text-primary);
             font-weight: bold;
             cursor: pointer;
             transition: var(--transition);
@@ -148,7 +178,7 @@
         .alphabet-btn:hover, .alphabet-btn.active {
             background: var(--secondary);
             transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 8px var(--shadow-color);
         }
         
         .txt-btn {
@@ -165,6 +195,14 @@
         
         .search-btn:hover {
             background: var(--warning);
+        }
+        
+        .theme-btn {
+            background: rgba(155, 89, 182, 0.2);
+        }
+        
+        .theme-btn:hover {
+            background: #9b59b6;
         }
         
         /* Main Content */
@@ -201,20 +239,20 @@
         }
         
         .artist-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--card-bg);
             border-radius: 10px;
             padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: var(--transition);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
         }
         
         .artist-card:hover {
             background: rgba(52, 152, 219, 0.3);
             transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 16px var(--shadow-color);
         }
         
         .artist-icon {
@@ -238,6 +276,10 @@
             overflow-y: auto;
         }
         
+        [data-theme="light"] .songs-list {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
         .song-item {
             padding: 15px;
             margin: 10px 0;
@@ -248,6 +290,10 @@
             display: flex;
             align-items: center;
             gap: 15px;
+        }
+        
+        [data-theme="light"] .song-item {
+            background: rgba(0, 0, 0, 0.05);
         }
         
         .song-item:hover {
@@ -279,10 +325,14 @@
             transition: var(--transition);
         }
         
+        [data-theme="light"] .prompter-container {
+            background-color: #f8f8f8;
+        }
+        
         .prompter-display {
             flex-grow: 1;
             padding: 30px;
-            font-size: 2.5rem;
+            font-size: 2.5rem; /* Tamaño base que será modificado por JS */
             line-height: 1.6;
             text-align: center;
             overflow: hidden;
@@ -290,6 +340,12 @@
             color: #fff;
             background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.8) 30%, rgba(0, 0, 0, 0.8) 70%, transparent 100%);
             cursor: default;
+            transition: font-size 0.3s ease;
+        }
+        
+        [data-theme="light"] .prompter-display {
+            background: #f8f8f8;
+            color: #2c3e50;
         }
         
         .prompter-text {
@@ -312,17 +368,29 @@
             padding: 15px;
             display: flex;
             justify-content: center;
-            gap: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 15px;
+            border-top: 1px solid var(--border-color);
             z-index: 1000;
             transform: translateY(100%);
             transition: transform 0.5s ease, opacity 0.5s ease;
             opacity: 0;
+            flex-wrap: wrap;
+        }
+        
+        [data-theme="light"] .prompter-controls {
+            background: rgba(255, 255, 255, 0.95);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
         }
         
         .prompter-controls.visible {
             transform: translateY(0);
             opacity: 1;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
         
         .control-btn {
@@ -338,7 +406,7 @@
             align-items: center;
             justify-content: center;
             transition: var(--transition);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 8px var(--shadow-color);
         }
         
         .control-btn:hover {
@@ -346,7 +414,15 @@
             background: var(--accent);
         }
         
-        .speed-display {
+        .font-control-btn {
+            background: rgba(155, 89, 182, 0.8);
+        }
+        
+        .font-control-btn:hover {
+            background: #8e44ad;
+        }
+        
+        .speed-display, .font-size-display {
             background: rgba(255, 255, 255, 0.1);
             padding: 5px 15px;
             border-radius: 20px;
@@ -354,6 +430,13 @@
             align-items: center;
             gap: 10px;
             font-size: 1.1rem;
+            min-width: 110px;
+            justify-content: center;
+        }
+        
+        [data-theme="light"] .speed-display,
+        [data-theme="light"] .font-size-display {
+            background: rgba(0, 0, 0, 0.1);
         }
         
         /* Navigation Controls */
@@ -366,7 +449,7 @@
         
         .nav-btn {
             background: rgba(255, 255, 255, 0.1);
-            color: white;
+            color: var(--text-primary);
             border: none;
             padding: 12px 15px;
             border-radius: 8px;
@@ -377,6 +460,10 @@
             transition: var(--transition);
             font-size: 1rem;
             width: 100%;
+        }
+        
+        [data-theme="light"] .nav-btn {
+            background: rgba(0, 0, 0, 0.05);
         }
         
         .nav-btn:hover {
@@ -425,6 +512,11 @@
             margin: 0 auto 15px;
         }
         
+        [data-theme="light"] .loader .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--secondary);
+        }
+        
         /* Error Display */
         .error-container {
             background: rgba(231, 76, 60, 0.2);
@@ -433,6 +525,10 @@
             padding: 20px;
             margin: 20px 0;
             text-align: center;
+        }
+        
+        [data-theme="light"] .error-container {
+            background: rgba(231, 76, 60, 0.1);
         }
         
         .error-title {
@@ -450,6 +546,10 @@
             font-size: 0.9rem;
             text-align: left;
             overflow-x: auto;
+        }
+        
+        [data-theme="light"] .error-details {
+            background: rgba(0, 0, 0, 0.05);
         }
         
         .retry-btn {
@@ -476,6 +576,10 @@
         body.prompter-fullscreen {
             background: #000;
             padding: 0;
+        }
+        
+        [data-theme="light"].prompter-fullscreen {
+            background: #f8f8f8;
         }
         
         body.prompter-fullscreen .sidebar {
@@ -516,6 +620,10 @@
             margin-right: auto;
         }
         
+        [data-theme="light"] .text-input-container {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
         .text-input-title {
             font-size: 1.5rem;
             margin-bottom: 20px;
@@ -528,13 +636,17 @@
             min-height: 300px;
             padding: 15px;
             background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            color: white;
+            color: var(--text-primary);
             font-size: 1.1rem;
             font-family: var(--font-main);
             resize: vertical;
             margin-bottom: 20px;
+        }
+        
+        [data-theme="light"] .text-input-area {
+            background: rgba(0, 0, 0, 0.05);
         }
         
         .text-input-area:focus {
@@ -562,7 +674,7 @@
         .text-input-btn:hover {
             background: #27ae60;
             transform: translateY(-3px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 10px var(--shadow-color);
         }
         
         /* Search View Styles */
@@ -574,6 +686,10 @@
             border-radius: 10px;
         }
         
+        [data-theme="light"] .search-container {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
         .search-input {
             width: 100%;
             padding: 15px;
@@ -581,8 +697,12 @@
             border-radius: 8px;
             border: 2px solid var(--secondary);
             background: rgba(0, 0, 0, 0.5);
-            color: white;
+            color: var(--text-primary);
             margin-bottom: 20px;
+        }
+        
+        [data-theme="light"] .search-input {
+            background: rgba(0, 0, 0, 0.05);
         }
         
         .search-input:focus {
@@ -608,6 +728,10 @@
             gap: 15px;
         }
         
+        [data-theme="light"] .search-item {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
         .search-item:hover {
             background: rgba(52, 152, 219, 0.3);
             transform: translateX(5px);
@@ -631,12 +755,13 @@
             font-size: 1rem;
             opacity: 0.8;
             font-style: italic;
+            color: var(--text-secondary);
         }
         
         .no-results {
             text-align: center;
             padding: 20px;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--text-secondary);
         }
         
         .search-info {
@@ -644,6 +769,7 @@
             font-size: 0.9rem;
             margin-top: 10px;
             opacity: 0.7;
+            color: var(--text-secondary);
         }
         
         /* Animations */
@@ -655,6 +781,16 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes themeSwitch {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        /* Theme transition */
+        body {
+            animation: themeSwitch 0.5s ease;
         }
         
         /* Responsive Design */
@@ -669,7 +805,7 @@
                 max-height: 300px;
                 position: relative;
                 border-right: none;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                border-bottom: 1px solid var(--border-color);
             }
             
             .sidebar-compact {
@@ -693,6 +829,15 @@
             
             .toggle-sidebar-btn {
                 display: none;
+            }
+            
+            .prompter-controls {
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .control-group {
+                gap: 10px;
             }
         }
         
@@ -732,6 +877,11 @@
             .search-container {
                 padding: 15px;
             }
+            
+            .speed-display, .font-size-display {
+                min-width: 90px;
+                font-size: 1rem;
+            }
         }
         
         @media (max-width: 480px) {
@@ -751,8 +901,8 @@
             }
             
             .prompter-controls {
-                gap: 10px;
-                padding: 10px;
+                gap: 5px;
+                padding: 8px;
             }
             
             .control-btn {
@@ -761,9 +911,10 @@
                 font-size: 1.1rem;
             }
             
-            .speed-display {
+            .speed-display, .font-size-display {
                 padding: 5px 10px;
-                font-size: 1rem;
+                font-size: 0.9rem;
+                min-width: 80px;
             }
             
             .text-input-area {
@@ -778,6 +929,10 @@
             
             .search-item .song-title {
                 font-size: 1.1rem;
+            }
+            
+            .control-group {
+                gap: 5px;
             }
         }
     </style>
@@ -807,6 +962,10 @@
                 <button class="nav-btn" id="backToLettersBtn">
                     <i class="fas fa-home"></i>
                     <span>Volver al inicio</span>
+                </button>
+                <button class="nav-btn" id="themeToggleBtn">
+                    <i class="fas fa-moon"></i>
+                    <span>Modo Oscuro</span>
                 </button>
             </div>
         </aside>
@@ -881,22 +1040,40 @@
                 
                 <!-- Floating Controls (fixed at bottom) -->
                 <div class="prompter-controls" id="prompterControls">
-                    <button class="control-btn" id="playBtn">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <button class="control-btn" id="speedUpBtn">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <div class="speed-display">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span id="speedValue">1.0x</span>
+                    <div class="control-group">
+                        <button class="control-btn" id="playBtn">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="control-btn" id="speedUpBtn">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <div class="speed-display">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span id="speedValue">1.0x</span>
+                        </div>
+                        <button class="control-btn" id="speedDownBtn">
+                            <i class="fas fa-minus"></i>
+                        </button>
                     </div>
-                    <button class="control-btn" id="speedDownBtn">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button class="control-btn" id="backBtn">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
+                    
+                    <div class="control-group">
+                        <button class="control-btn font-control-btn" id="fontSizeDownBtn">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <div class="font-size-display">
+                            <i class="fas fa-text-height"></i>
+                            <span id="fontSizeValue">2.5rem</span>
+                        </div>
+                        <button class="control-btn font-control-btn" id="fontSizeUpBtn">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button class="control-btn" id="backBtn">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- Error Display -->
@@ -924,11 +1101,11 @@
             </div>
             
             <!-- Footer -->
-    <footer>
-        <p>Sistema de Prompter: Cancionero  | Desarrollado con ♥ para lectores y músicos</p>
-        <p><small>MMXXV | Versión 1.1 </small></p>
-        <p>Licencia Creative Commons BY-SA</p>
-    </footer>
+            <footer>
+                <p>Sistema de Prompter: Cancionero  | Desarrollado con ♥ para lectores y músicos</p>
+                <p><small>MMXXV | Versión 1.2 | Modo Claro/Oscuro | Control de Tamaño</small></p>
+                <p>Licencia Creative Commons BY-SA</p>
+            </footer>
         </main>
     </div>
 
@@ -945,6 +1122,7 @@
             const artistNameEl = document.getElementById('artistName');
             const songTitleEl = document.getElementById('songTitle');
             const speedValue = document.getElementById('speedValue');
+            const fontSizeValue = document.getElementById('fontSizeValue');
             const loader = document.getElementById('loader');
             const errorView = document.getElementById('errorView');
             const errorArtist = document.getElementById('errorArtist');
@@ -961,6 +1139,9 @@
             const searchInput = document.getElementById('searchInput');
             const searchResults = document.getElementById('searchResults');
             const sidebar = document.getElementById('sidebar');
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const fontSizeUpBtn = document.getElementById('fontSizeUpBtn');
+            const fontSizeDownBtn = document.getElementById('fontSizeDownBtn');
             
             // Views
             const artistsView = document.getElementById('artistsView');
@@ -991,13 +1172,20 @@
                 controlsTimeout: null,
                 controlsVisible: false,
                 searchIndex: [],
-                searchDebounce: null
+                searchDebounce: null,
+                fontSize: 2.5, // Tamaño base de fuente en rem
+                minFontSize: 1.5,
+                maxFontSize: 4.0,
+                theme: 'dark'
             };
             
             // Initialize the app
             async function initApp() {
                 showLoader();
                 try {
+                    // Cargar preferencias guardadas
+                    loadPreferences();
+                    
                     // Load the song index from JSON
                     const response = await fetch('canciones/index.json');
                     if (!response.ok) throw new Error('No se pudo cargar el índice de canciones');
@@ -1014,6 +1202,29 @@
                               'No se pudo cargar el archivo canciones/index.json', 
                               error.message);
                     hideLoader();
+                }
+            }
+            
+            // Cargar preferencias del usuario
+            function loadPreferences() {
+                // Tema
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme) {
+                    appState.theme = savedTheme;
+                    document.documentElement.setAttribute('data-theme', savedTheme);
+                    
+                    // Actualizar texto del botón
+                    const icon = themeToggleBtn.querySelector('i');
+                    const text = themeToggleBtn.querySelector('span');
+                    icon.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+                    text.textContent = savedTheme === 'dark' ? 'Modo Oscuro' : 'Modo Claro';
+                }
+                
+                // Tamaño de fuente
+                const savedFontSize = localStorage.getItem('fontSize');
+                if (savedFontSize) {
+                    appState.fontSize = parseFloat(savedFontSize);
+                    updateFontSize();
                 }
             }
             
@@ -1134,7 +1345,6 @@
                 txtButton.className = 'alphabet-btn txt-btn';
                 txtButton.title = 'Pegar texto personalizado';
                 txtButton.innerHTML = '<i class="fas fa-font"></i>';
-                //<span>_</span>';
                 txtButton.addEventListener('click', () => {
                     showView(textInputView);
                     updateBreadcrumb('Texto personalizado');
@@ -1146,7 +1356,6 @@
                 searchButton.className = 'alphabet-btn search-btn';
                 searchButton.title = 'Buscar canciones';
                 searchButton.innerHTML = '<i class="fas fa-search"></i>';
-                //<span>Buscar</span>';
                 searchButton.addEventListener('click', () => {
                     showView(searchView);
                     updateBreadcrumb('Buscador de canciones');
@@ -1155,6 +1364,32 @@
                     setTimeout(() => searchInput.focus(), 100);
                 });
                 alphabetNav.appendChild(searchButton);
+                
+                // Add Theme button
+                const themeButton = document.createElement('button');
+                themeButton.className = 'alphabet-btn theme-btn';
+                themeButton.title = 'Cambiar tema claro/oscuro';
+                themeButton.innerHTML = '<i class="fas fa-adjust"></i>';
+                themeButton.addEventListener('click', () => {
+                    toggleTheme();
+                });
+                alphabetNav.appendChild(themeButton);
+            }
+            
+            // Cambiar entre modo claro y oscuro
+            function toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                appState.theme = newTheme;
+                
+                // Actualizar icono y texto
+                const icon = themeToggleBtn.querySelector('i');
+                const text = themeToggleBtn.querySelector('span');
+                icon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+                text.textContent = newTheme === 'dark' ? 'Modo Oscuro' : 'Modo Claro';
             }
             
             // Select a letter
@@ -1450,6 +1685,31 @@
                 speedValue.textContent = appState.scrollSpeed.toFixed(1) + 'x';
             }
             
+            // Increase font size
+            function increaseFontSize() {
+                if (appState.fontSize < appState.maxFontSize) {
+                    appState.fontSize += 0.2;
+                    updateFontSize();
+                }
+                resetControlsTimer();
+            }
+            
+            // Decrease font size
+            function decreaseFontSize() {
+                if (appState.fontSize > appState.minFontSize) {
+                    appState.fontSize -= 0.2;
+                    updateFontSize();
+                }
+                resetControlsTimer();
+            }
+            
+            // Update font size display and apply
+            function updateFontSize() {
+                prompterDisplay.style.fontSize = `${appState.fontSize}rem`;
+                fontSizeValue.textContent = `${appState.fontSize.toFixed(1)}rem`;
+                localStorage.setItem('fontSize', appState.fontSize);
+            }
+            
             // Show controls
             function showControls() {
                 clearTimeout(appState.controlsTimeout);
@@ -1496,6 +1756,8 @@
             playBtn.addEventListener('click', togglePlay);
             speedUpBtn.addEventListener('click', increaseSpeed);
             speedDownBtn.addEventListener('click', decreaseSpeed);
+            fontSizeUpBtn.addEventListener('click', increaseFontSize);
+            fontSizeDownBtn.addEventListener('click', decreaseFontSize);
             backBtn.addEventListener('click', () => {
                 document.body.classList.remove('prompter-fullscreen');
                 showView(songsView);
@@ -1546,6 +1808,9 @@
                 }
             });
             
+            // CORRECCIÓN: Asignar el evento al botón de tema en el menú
+            themeToggleBtn.addEventListener('click', toggleTheme);
+            
             // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
                 // Space: play/pause
@@ -1588,6 +1853,21 @@
                 else if (e.key === 't' || e.key === 'T') {
                     e.preventDefault();
                     toggleSidebar();
+                }
+                // + para aumentar tamaño de fuente
+                else if (e.key === '+' || e.key === '=') {
+                    e.preventDefault();
+                    increaseFontSize();
+                }
+                // - para disminuir tamaño de fuente
+                else if (e.key === '-' || e.key === '_') {
+                    e.preventDefault();
+                    decreaseFontSize();
+                }
+                // D para cambiar tema (dark/light)
+                else if (e.key === 'd' || e.key === 'D') {
+                    e.preventDefault();
+                    toggleTheme();
                 }
             });
             
