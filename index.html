@@ -955,17 +955,21 @@
             
             <!-- Navigation Controls -->
             <div class="nav-controls">
-                <button class="nav-btn" id="backToArtistsBtn">
-                    <i class="fas fa-arrow-left"></i>
-                    <span>Volver a artistas</span>
-                </button>
-                <button class="nav-btn" id="backToLettersBtn">
+                <button class="nav-btn" id="backToHomeBtn">
                     <i class="fas fa-home"></i>
                     <span>Volver al inicio</span>
                 </button>
                 <button class="nav-btn" id="themeToggleBtn">
                     <i class="fas fa-moon"></i>
                     <span>Modo Oscuro</span>
+                </button>
+                <button class="nav-btn" id="pasteTextBtn">
+                    <i class="fas fa-font"></i>
+                    <span>Pegar texto</span>
+                </button>
+                <button class="nav-btn" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                    <span>Buscar</span>
                 </button>
             </div>
         </aside>
@@ -1103,7 +1107,7 @@
             <!-- Footer -->
             <footer>
                 <p>Sistema de Prompter: Cancionero  | Desarrollado con ♥ para lectores y músicos</p>
-                <p><small>MMXXV | Versión 1.2 | Modo Claro/Oscuro | Control de Tamaño</small></p>
+                <p><small>MMXXV | Versión 1.3 | Menú Simplificado</small></p>
                 <p>Licencia Creative Commons BY-SA</p>
             </footer>
         </main>
@@ -1142,6 +1146,9 @@
             const themeToggleBtn = document.getElementById('themeToggleBtn');
             const fontSizeUpBtn = document.getElementById('fontSizeUpBtn');
             const fontSizeDownBtn = document.getElementById('fontSizeDownBtn');
+            const backToHomeBtn = document.getElementById('backToHomeBtn');
+            const pasteTextBtn = document.getElementById('pasteTextBtn');
+            const searchBtn = document.getElementById('searchBtn');
             
             // Views
             const artistsView = document.getElementById('artistsView');
@@ -1153,8 +1160,6 @@
             const speedUpBtn = document.getElementById('speedUpBtn');
             const speedDownBtn = document.getElementById('speedDownBtn');
             const backBtn = document.getElementById('backBtn');
-            const backToArtistsBtn = document.getElementById('backToArtistsBtn');
-            const backToLettersBtn = document.getElementById('backToLettersBtn');
             
             // App State
             const appState = {
@@ -1758,18 +1763,29 @@
             speedDownBtn.addEventListener('click', decreaseSpeed);
             fontSizeUpBtn.addEventListener('click', increaseFontSize);
             fontSizeDownBtn.addEventListener('click', decreaseFontSize);
+            
             backBtn.addEventListener('click', () => {
                 document.body.classList.remove('prompter-fullscreen');
                 showView(songsView);
             });
-            backToArtistsBtn.addEventListener('click', () => {
-                document.body.classList.remove('prompter-fullscreen');
-                showView(artistsView);
-            });
-            backToLettersBtn.addEventListener('click', () => {
+            
+            backToHomeBtn.addEventListener('click', () => {
                 document.body.classList.remove('prompter-fullscreen');
                 showView(artistsView);
                 updateBreadcrumb('Inicio');
+            });
+            
+            pasteTextBtn.addEventListener('click', () => {
+                showView(textInputView);
+                updateBreadcrumb('Texto personalizado');
+            });
+            
+            searchBtn.addEventListener('click', () => {
+                showView(searchView);
+                updateBreadcrumb('Buscador de canciones');
+                searchInput.value = '';
+                searchResults.innerHTML = '<div class="no-results">Escribe en el cuadro de búsqueda para encontrar canciones.</div>';
+                setTimeout(() => searchInput.focus(), 100);
             });
             
             retryBtn.addEventListener('click', () => {
@@ -1808,11 +1824,18 @@
                 }
             });
             
-            // CORRECCIÓN: Asignar el evento al botón de tema en el menú
+            // Asignar el evento al botón de tema en el menú
             themeToggleBtn.addEventListener('click', toggleTheme);
             
             // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
+    // Verificar si el campo de búsqueda tiene el foco
+    const isSearchActive = document.activeElement === searchInput;
+    
+    // Si el campo de búsqueda está activo, ignorar todos los atajos excepto Escape
+    if (isSearchActive && e.code !== 'Escape') {
+        return; // Salir sin procesar los atajos
+    }
                 // Space: play/pause
                 if (e.code === 'Space') {
                     e.preventDefault();
